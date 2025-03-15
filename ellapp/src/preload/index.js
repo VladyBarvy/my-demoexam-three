@@ -1,5 +1,6 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+const { ipcRenderer } = require('electron');
 
 // Custom APIs for renderer
 const api = {}
@@ -11,6 +12,14 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
+
+    contextBridge.exposeInMainWorld('electronAPI', {
+      getUsers: () => ipcRenderer.invoke('get-users'),
+      addUser: (user) => ipcRenderer.invoke('add-user', user),
+      deleteUser: (id) => ipcRenderer.invoke('delete-user', id),
+      updateUser: (user) => ipcRenderer.invoke('update-user', user),
+    })
+
   } catch (error) {
     console.error(error)
   }

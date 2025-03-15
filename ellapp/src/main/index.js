@@ -2,6 +2,9 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+//const db = require('./database.js');
+import { db } from './database.js'
+
 
 function createWindow() {
   // Create the browser window.
@@ -34,6 +37,18 @@ function createWindow() {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+
+
+      // Пример выполнения запроса к базе данных
+      db.all('SELECT * FROM users', (err, rows) => {
+        if (err) {
+            console.error('Ошибка выполнения запроса:', err.message);
+        } else {
+            console.log('Результат запроса:', rows);
+        }
+    });
+
 }
 
 // This method will be called when Electron has finished
@@ -73,3 +88,63 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+// Обработчики IPC для работы с базой данных
+ipcMain.handle('get-users', async () => {
+  return new Promise((resolve, reject) => {
+      db.all('SELECT * FROM users', (err, rows) => {
+          if (err) {
+              reject(err.message);
+          } else {
+              resolve(rows);
+          }
+      });
+  });
+});
+
+ipcMain.handle('add-user', async (event, user) => {
+  return new Promise((resolve, reject) => {
+      const { firstName, lastName, age } = user;
+      db.run(
+          'INSERT INTO users (firstName, lastName, age) VALUES (?, ?, ?)',
+          [firstName, lastName, age],
+          function (err) {
+              if (err) {
+                  reject(err.message);
+              } else {
+                  resolve({ id: this.lastID, ...user });
+              }
+          }
+      );
+  });
+});
+
+ipcMain.handle('delete-user', async (event, id) => {
+  return new Promise((resolve, reject) => {
+      db.run('DELETE FROM users WHERE id = ?', [id], function (err) {
+          if (err) {
+              reject(err.message);
+          } else {
+              resolve(this.changes > 0);
+          }
+      });
+  });
+});
+
+ipcMain.handle('update-user', async (event, user) => {
+  return new Promise((resolve, reject) => {
+      const { id, firstName, lastName, age } = user;
+      db.run(
+          'UPDATE users SET firstName = ?, lastName = ?, age = ? WHERE id = ?',
+          [firstName, lastName, age, id],
+          function (err) {
+              if (err) {
+                  reject(err.message);
+              } else {
+                  resolve(this.changes > 0);
+              }
+          }
+      );
+  });
+});

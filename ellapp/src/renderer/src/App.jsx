@@ -1,6 +1,7 @@
 import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
 import Date_Time from './components/Date_Time';
+import UserList from './components/UserList';
 
 function App() {
   //const ipcHandle = () => window.electron.ipcRenderer.send('ping')
@@ -28,6 +29,7 @@ function App() {
         </div>
       </div> */}
 
+      <UserList />
 
       <Date_Time />
 
