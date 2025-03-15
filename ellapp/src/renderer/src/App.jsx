@@ -1,12 +1,13 @@
 import Versions from './components/Versions'
 import electronLogo from './assets/electron.svg'
+import Date_Time from './components/Date_Time';
 
 function App() {
-  const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+  //const ipcHandle = () => window.electron.ipcRenderer.send('ping')
 
   return (
     <>
-      <img alt="logo" className="logo" src={electronLogo} />
+      {/* <img alt="logo" className="logo" src={electronLogo} />
       <div className="creator">Powered by electron-vite</div>
       <div className="text">
         Build an Electron app with <span className="react">React</span>
@@ -25,7 +26,11 @@ function App() {
             Send IPC
           </a>
         </div>
-      </div>
+      </div> */}
+
+
+      <Date_Time />
+
       <Versions></Versions>
     </>
   )
